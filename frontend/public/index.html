@@ -1,0 +1,2335 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>投诉建议系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        /* 主题切换过渡动画 */
+        * {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        /* 自定义滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #666;
+        }
+
+        /* 暗色模式滚动条 */
+        [data-bs-theme="dark"] ::-webkit-scrollbar-track {
+            background: #2b3035;
+        }
+
+        [data-bs-theme="dark"] ::-webkit-scrollbar-thumb {
+            background: #666;
+        }
+
+        [data-bs-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+            background: #888;
+        }
+
+        /* 优化表格滚动条 */
+        .table-responsive::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        /* 文本区域滚动条 */
+        textarea::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        /* 模态框滚动条 */
+        .modal-body::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        /* 暗色模式下的一些自定义样式 */
+        [data-bs-theme="dark"] {
+            background-color: #1a1d20;
+        }
+
+        [data-bs-theme="dark"] .card {
+            background-color: #2b3035;
+            border-color: #373b3e;
+        }
+
+        [data-bs-theme="dark"] .navbar {
+            background-color: #2b3035 !important;
+        }
+
+        [data-bs-theme="dark"] .modal-content {
+            background-color: #2b3035;
+            border-color: #373b3e;
+        }
+
+        [data-bs-theme="dark"] .form-control,
+        [data-bs-theme="dark"] .form-select,
+        [data-bs-theme="dark"] .input-group-text {
+            background-color: #1a1d20;
+            border-color: #373b3e;
+            color: #fff;
+        }
+
+        [data-bs-theme="dark"] .table {
+            color: #fff;
+        }
+
+        [data-bs-theme="dark"] .table tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        [data-bs-theme="dark"] .preview-image {
+            border: 1px solid #373b3e;
+        }
+
+        /* 基础动画 */
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: opacity 0.3s ease;
+        }
+        .fade-enter-from,
+        .fade-leave-to {
+            opacity: 0;
+        }
+
+        /* 页面切换动画 */
+        .page-move {
+            transition: transform 0.3s ease-out;
+        }
+        .page-enter-active {
+            transition: all 0.3s ease-out;
+            position: relative;
+        }
+        .page-leave-active {
+            transition: all 0.3s ease-out;
+            position: absolute;
+            width: 100%;
+        }
+        .page-enter-from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        .page-leave-to {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        /* 卡片悬浮效果 */
+        .card {
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+        }
+
+        /* 按钮动画 */
+        .btn {
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn:after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255,255,255,.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        .btn:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(50, 50);
+                opacity: 0;
+            }
+        }
+
+        .preview-image {
+            max-width: 100px;
+            max-height: 100px;
+            margin: 8px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+        }
+        .preview-image:hover {
+            transform: scale(1.1);
+        }
+
+        /* 表格行动画 */
+        .table tbody tr {
+            transition: all 0.2s ease;
+        }
+        .table tbody tr:hover {
+            background-color: rgba(13, 110, 253, 0.05);
+            transform: scale(1.01);
+        }
+
+        /* 导航链接动画 */
+        .nav-link {
+            position: relative;
+            cursor: pointer;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 50%;
+            background-color: white;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* 状态标签动画 */
+        .badge {
+            transition: all 0.3s ease;
+        }
+        .badge:hover {
+            transform: scale(1.1);
+        }
+
+        .stat-card {
+            transition: transform 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- 导航栏 -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container-fluid">
+                <!-- 返回按钮 -->
+                <button class="btn btn-link text-white me-3 nav-link" 
+                        @click="goBack" 
+                        v-if="canGoBack"
+                        style="text-decoration: none;">
+                    <i class="bi bi-arrow-left"></i> 返回
+                </button>
+                <a class="navbar-brand">投诉建议系统</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" @click="toggleTheme">
+                                <i class="bi" :class="isDarkMode ? 'bi-sun' : 'bi-moon'"></i>
+                            </a>
+                        </li>
+                        <template v-if="isAdmin">
+                            <li class="nav-item">
+                                <a class="nav-link" @click="navigate('/dashboard')">
+                                    <i class="bi bi-speedometer2"></i> 控制台
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" @click="navigate('/complaints')">
+                                    <i class="bi bi-list-ul"></i> 投诉列表
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" @click="navigate('/settings')">
+                                    <i class="bi bi-gear"></i> 系统设置
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" @click="navigate('/businesses')">
+                                    <i class="bi bi-building"></i> 业务管理
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" @click="logout">
+                                    <i class="bi bi-box-arrow-right"></i> 退出
+                                </a>
+                            </li>
+                        </template>
+                        <template v-else>
+                            <li class="nav-item">
+                                <a class="nav-link" @click="navigate('/login')">
+                                    <i class="bi bi-person"></i> 管理员登录
+                                </a>
+                            </li>
+                        </template>
+                        <template v-if="!isAdmin">
+                            <li class="nav-item">
+                                <a class="nav-link" @click="navigate('/query')">
+                                    <i class="bi bi-search"></i> 查询进度
+                                </a>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container py-4">
+            <!-- 使用 transition-group 包装页面内容 -->
+            <transition-group name="page">
+                <!-- 登录表单 -->
+                <div v-if="currentView === 'login'" :key="'login'" class="card shadow-sm">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">管理员登录</h4>
+                        <form @submit.prevent="handleLogin">
+                            <div class="mb-3">
+                                <label class="form-label">用户名</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                    <input type="text" class="form-control" v-model="loginForm.username" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">密码</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                    <input type="password" class="form-control" v-model="loginForm.password" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-box-arrow-in-right"></i> 登录
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 投诉表单 -->
+                <div v-if="currentView === 'complaint-form'" :key="'complaint'" class="card shadow-sm">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">提交投诉</h4>
+                        <form @submit.prevent="handleSubmitComplaint">
+                            <div class="mb-3">
+                                <label class="form-label">标题</label>
+                                <input type="text" class="form-control" v-model="complaintForm.title" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">详细描述</label>
+                                <textarea class="form-control" v-model="complaintForm.description" rows="5" required
+                                    :class="{'is-invalid': descriptionError}"
+                                    @input="validateDescription"></textarea>
+                                <div class="form-text" :class="{'text-danger': descriptionError}">
+                                    还需要输入 {{ remainingChars }} 个字
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">业务分类</label>
+                                <select class="form-select" v-model="complaintForm.category_id" required @change="handleCategoryChange">
+                                    <option value="">请选择分类</option>
+                                    <option v-for="category in categories" 
+                                            :key="category.id" 
+                                            :value="category.id">
+                                        {{ category.name }}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="mb-3" v-if="complaintForm.category_id">
+                                <label class="form-label">具体业务</label>
+                                <select class="form-select" 
+                                        v-model="complaintForm.business_id" 
+                                        required
+                                        @change="handleBusinessChange">
+                                    <option value="">请选择业务</option>
+                                    <option v-for="business in filteredBusinesses" 
+                                            :key="business.id" 
+                                            :value="business.id">
+                                        {{ business.name }}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">附件</label>
+                                <input type="file" class="form-control" @change="handleFileSelect" multiple 
+                                       accept=".jpg,.jpeg,.png,.pdf,.doc,.docx">
+                                <div class="d-flex flex-wrap mt-2">
+                                    <img v-for="preview in previews" :key="preview" :src="preview" 
+                                         class="preview-image">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">联系方式</label>
+                                <input type="text" class="form-control" v-model="complaintForm.contact" required>
+                            </div>
+                            <div v-if="selectedBusiness && selectedBusiness.fields_config">
+                                <template v-for="field in JSON.parse(selectedBusiness.fields_config || '[]')" 
+                                          :key="field.label">
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            {{ field.label }}
+                                            <span class="text-danger" v-if="field.required">*</span>
+                                        </label>
+
+                                        <!-- 文本输入框 -->
+                                        <input v-if="field.type === 'text'"
+                                               type="text"
+                                               class="form-control"
+                                               v-model="complaintForm.custom_fields[field.label]"
+                                               :required="field.required"
+                                               :placeholder="field.description">
+                                        <div class="form-text" v-if="field.description">{{ field.description }}</div>
+
+                                        <!-- 多行文本框 -->
+                                        <textarea v-else-if="field.type === 'textarea'"
+                                                  class="form-control"
+                                                  v-model="complaintForm.custom_fields[field.label]"
+                                                  :required="field.required"
+                                                  :placeholder="field.description"
+                                                  rows="3"></textarea>
+                                        <div class="form-text" v-if="field.description">{{ field.description }}</div>
+
+                                        <!-- 数字输入框 -->
+                                        <input v-else-if="field.type === 'number'"
+                                               type="number"
+                                               class="form-control"
+                                               v-model="complaintForm.custom_fields[field.label]"
+                                               :required="field.required"
+                                               :placeholder="field.description">
+                                        <div class="form-text" v-if="field.description">{{ field.description }}</div>
+
+                                        <!-- 下拉选择框 -->
+                                        <select v-else-if="field.type === 'select'"
+                                                class="form-select"
+                                                v-model="complaintForm.custom_fields[field.label]"
+                                                :required="field.required">
+                                            <option value="">{{ field.description || '请选择' }}</option>
+                                            <option v-for="option in field.options"
+                                                    :key="option"
+                                                    :value="option">
+                                                {{ option }}
+                                            </option>
+                                        </select>
+                                <div class="form-text" v-if="field.description">{{ field.description }}</div>
+
+                                        <!-- 单选按钮组 -->
+                                        <div v-else-if="field.type === 'radio'"
+                                             class="form-check-group">
+                                            <div v-if="field.description" class="form-text mb-2">{{ field.description }}</div>
+                                            <div v-for="option in field.options"
+                                                 :key="option"
+                                                 class="form-check">
+                                                <input type="radio"
+                                                       class="form-check-input"
+                                                       :name="field.label"
+                                                       :value="option"
+                                                       v-model="complaintForm.custom_fields[field.label]"
+                                                       :required="field.required">
+                                                <label class="form-check-label">{{ option }}</label>
+                                            </div>
+                                        </div>
+
+                                        <!-- 复选框组 -->
+                                        <div v-else-if="field.type === 'checkbox'"
+                                             class="form-check-group">
+                                            <div v-if="field.description" class="form-text mb-2">{{ field.description }}</div>
+                                            <div v-for="option in field.options"
+                                                 :key="option"
+                                                 class="form-check">
+                                                <input type="checkbox"
+                                                       class="form-check-input"
+                                                       :value="option"
+                                                       v-model="complaintForm.custom_fields[field.label]"
+                                                       :required="field.required">
+                                                <label class="form-check-label">{{ option }}</label>
+                                            </div>
+                                        </div>
+
+                                        <!-- 日期选择器 -->
+                                        <input v-else-if="field.type === 'date'"
+                                               type="date"
+                                               class="form-control"
+                                               v-model="complaintForm.custom_fields[field.label]"
+                                               :required="field.required">
+                                        <div class="form-text" v-if="field.description">{{ field.description }}</div>
+                                    </div>
+                                </template>
+                            </div>
+                            <button type="submit" class="btn btn-primary" :disabled="submitting">
+                                <i class="bi" :class="submitting ? 'bi-hourglass-split' : 'bi-send'"></i>
+                                {{ submitting ? '提交中...' : '提交投诉' }}
+                            </button>
+                        </form>
+                        <!-- 提交成功后显示投诉编号 -->
+                        <div v-if="submittedId" class="alert alert-success mt-3">
+                            <h5 class="alert-heading">投诉提交成功！</h5>
+                            <p class="mb-1">您的投诉编号是：</p>
+                            <p class="h4 mb-2">{{ submittedId }}</p>
+                            <hr>
+                            <p class="mb-0">请保存此编号，可用于后续查询投诉进度。</p>
+                            <div class="mt-3">
+                                <button class="btn btn-sm btn-primary me-2" @click="navigate('/query')">
+                                    <i class="bi bi-search"></i> 立即查询
+                                </button>
+                                <button class="btn btn-sm btn-outline-primary" @click="submittedId = ''">
+                                    <i class="bi bi-plus"></i> 继续提交
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 管理员控制台 -->
+                <div v-if="currentView === 'dashboard' && isAdmin" :key="'dashboard'" class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card bg-primary text-white stat-card">
+                            <div class="card-body">
+                                <h5 class="card-title">待处理投诉</h5>
+                                <h2 class="display-4">{{ stats.pending }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-success text-white stat-card">
+                            <div class="card-body">
+                                <h5 class="card-title">已处理投诉</h5>
+                                <h2 class="display-4">{{ stats.resolved }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 投诉列表 -->
+                <div v-if="currentView === 'complaints' && isAdmin" :key="'complaints'" class="card shadow-sm">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">投诉列表</h4>
+                        <div class="mb-3">
+                            <select class="form-select w-auto" v-model="filters.status">
+                                <option value="">全部状态</option>
+                                <option value="pending">待处理</option>
+                                <option value="processing">处理中</option>
+                                <option value="resolved">已解决</option>
+                            </select>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>标题</th>
+                                        <th>状态</th>
+                                        <th>提交时间</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="complaint in filteredComplaints" :key="complaint.id">
+                                        <td>{{ complaint.id }}</td>
+                                        <td>{{ complaint.title }}</td>
+                                        <td>
+                                            <span :class="'badge ' + getStatusBadge(complaint.status)">
+                                                {{ complaint.status }}
+                                            </span>
+                                        </td>
+                                        <td>{{ formatDate(complaint.created_at) }}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary" 
+                                                    @click="viewComplaint(complaint.id)">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger" 
+                                                    @click="deleteComplaint(complaint.id)">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 查询表单 -->
+                <div v-if="currentView === 'complaint-query'" :key="'query'" class="card shadow-sm">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">查询投诉进度</h4>
+                        <form @submit.prevent="handleQueryComplaint">
+                            <div class="mb-3">
+                                <label class="form-label">投诉编号</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       v-model="queryId" 
+                                       placeholder="请输入投诉编号，例如：TS202403010001"
+                                       pattern="[A-Za-z0-9]+"
+                                       required>
+                                <div class="form-text">
+                                    请输入完整的投诉编号
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-search"></i> 查询
+                            </button>
+                        </form>
+                        <div v-if="queryResult" class="mt-4">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">投诉详情 #{{ queryResult.id }}</h5>
+                                    <span :class="getStatusBadge(queryResult.status)">
+                                        {{ getStatusText(queryResult.status) }}
+                                    </span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <h6>标题</h6>
+                                        <p>{{ queryResult.title }}</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <h6>业务分类</h6>
+                                        <p>{{ queryResult.category_name }}</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <h6>具体业务</h6>
+                                        <p>{{ queryResult.business_name }}</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <h6>详细描述</h6>
+                                        <p style="white-space: pre-line">{{ queryResult.description }}</p>
+                                    </div>
+                                    
+                                    <!-- 自定义字段信息 -->
+                                    <template v-if="queryResult.custom_fields && queryResult.fields_config">
+                                        <div v-for="field in queryResult.fields_config" 
+                                             :key="field.label" 
+                                             class="mb-3">
+                                            <h6>{{ field.label }}</h6>
+                                            <!-- 复选框组特殊处理 -->
+                                            <template v-if="field.type === 'checkbox' && Array.isArray(queryResult.custom_fields[field.label])">
+                                                <ul class="list-unstyled mb-0">
+                                                    <li v-for="value in queryResult.custom_fields[field.label]" 
+                                                        :key="value">
+                                                        {{ value }}
+                                                    </li>
+                                                </ul>
+                                            </template>
+                                            <!-- 其他类型字段 -->
+                                            <p v-else>{{ queryResult.custom_fields[field.label] }}</p>
+                                        </div>
+                                    </template>
+
+                                    <div class="mb-3">
+                                        <h6>联系方式</h6>
+                                        <p>{{ queryResult.contact }}</p>
+                                    </div>
+                                    
+                                    <!-- 附件显示 -->
+                                    <div v-if="queryResult.attachments && queryResult.attachments.length" class="mb-3">
+                                        <h6>附件</h6>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <template v-for="attachment in queryResult.attachments" :key="attachment">
+                                                <!-- 图片预览 -->
+                                                <div v-if="isImage(attachment)" 
+                                                     class="attachment-preview"
+                                                     @click="openImage(attachment)">
+                                                    <img :src="attachment" class="img-thumbnail" style="height: 100px">
+                                                </div>
+                                                <!-- 其他文件下载链接 -->
+                                                <a v-else 
+                                                   :href="attachment" 
+                                                   class="btn btn-outline-primary btn-sm"
+                                                   target="_blank">
+                                                    <i class="bi bi-file-earmark"></i>
+                                                    下载附件
+                                                </a>
+                                            </template>
+                                        </div>
+                                    </div>
+
+                                    <!-- 修改回复列表显示 -->
+                                    <div v-if="queryResult.replies && queryResult.replies.length" class="mb-3">
+                                        <h6>处理记录</h6>
+                                        <div class="list-group">
+                                            <div v-for="reply in queryResult.replies" 
+                                                 :key="reply.id"
+                                                 class="list-group-item"
+                                                 :class="{
+                                                     'bg-light': reply.is_private,
+                                                     'border-start border-4 border-primary': reply.created_by === '用户'
+                                                 }">
+                                                <div class="d-flex justify-content-between align-items-start">
+                                                    <div class="me-2">
+                                                        <div class="text-muted small">
+                                                            {{ formatDate(reply.created_at) }}
+                                                            <span v-if="reply.created_by" 
+                                                                  class="ms-2"
+                                                                  :class="{'text-primary': reply.created_by === '用户'}">
+                                                                {{ reply.created_by }}
+                                                            </span>
+                                                            <span v-if="reply.is_private" 
+                                                                  class="badge bg-warning ms-2">
+                                                                内部备注
+                                                            </span>
+                                                        </div>
+                                                        <div style="white-space: pre-line">{{ reply.content }}</div>
+                                                    </div>
+                                                    <!-- 删除按钮只对管理员可见 -->
+                                                    <button v-if="isAdmin" 
+                                                            class="btn btn-sm btn-outline-danger"
+                                                            @click="deleteReply(queryResult.id, reply.id)">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="text-muted mt-3">
+                                        <small>提交时间：{{ formatDate(queryResult.created_at) }}</small>
+                                        <br v-if="queryResult.resolved_at">
+                                        <small v-if="queryResult.resolved_at">
+                                            处理时间：{{ formatDate(queryResult.resolved_at) }}
+                                        </small>
+                                    </div>
+                                </div>
+                                
+                                <!-- 添加回复表单（仅管理员可见） -->
+                                <div v-if="isAdmin" class="card-footer">
+                                    <form @submit.prevent="handleAddReply(queryResult.id)" class="mb-3">
+                                        <div class="mb-3">
+                                            <label class="form-label">添加回复</label>
+                                            <textarea class="form-control" 
+                                                      v-model="replyForm.content" 
+                                                      rows="3" 
+                                                      required
+                                                      placeholder="请输入回复内容"></textarea>
+                                        </div>
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" 
+                                                   type="checkbox" 
+                                                   v-model="replyForm.is_private" 
+                                                   id="replyPrivate">
+                                            <label class="form-check-label" for="replyPrivate">
+                                                仅内部可见
+                                            </label>
+                                        </div>
+                                        <button type="submit" 
+                                                class="btn btn-primary" 
+                                                :disabled="submittingReply">
+                                            <i class="bi" :class="submittingReply ? 'bi-hourglass-split' : 'bi-reply'"></i>
+                                            {{ submittingReply ? '提交中...' : '提交回复' }}
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 系统设置页面 -->
+                <div v-if="currentView === 'settings' && isAdmin" :key="'settings'" class="card shadow-sm">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">系统设置</h4>
+                        <form @submit.prevent="saveSettings">
+                            <div class="row g-3">
+                                <!-- 基本设置 -->
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-header">基本设置</div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label class="form-label">系统名称</label>
+                                                <input type="text" class="form-control" v-model="settings.system_name">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">系统描述</label>
+                                                <textarea class="form-control" v-model="settings.system_description" rows="2"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 投诉设置 -->
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-header">投诉设置</div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label class="form-label">投诉编号前缀</label>
+                                                <input type="text" class="form-control" v-model="settings.complaint_id_prefix">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">最小描述字数</label>
+                                                <input type="number" class="form-control" v-model="settings.min_description_length">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">最大标题长度</label>
+                                                <input type="number" class="form-control" v-model="settings.max_title_length">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">最大描述长度</label>
+                                                <input type="number" class="form-control" v-model="settings.max_description_length">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 功能开关 -->
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-header">功能开关</div>
+                                        <div class="card-body">
+                                            <div class="form-check form-switch mb-2">
+                                                <input class="form-check-input" type="checkbox" v-model="settings.enable_attachments">
+                                                <label class="form-check-label">允许上传附件</label>
+                                            </div>
+                                            <div class="form-check form-switch mb-2">
+                                                <input class="form-check-input" type="checkbox" v-model="settings.enable_replies">
+                                                <label class="form-check-label">允许回复</label>
+                                            </div>
+                                            <div class="form-check form-switch mb-2">
+                                                <input class="form-check-input" type="checkbox" v-model="settings.enable_categories">
+                                                <label class="form-check-label">启用业务分类</label>
+                                            </div>
+                                            <div class="form-check form-switch mb-2">
+                                                <input class="form-check-input" type="checkbox" v-model="settings.enable_contact_info">
+                                                <label class="form-check-label">启用联系方式</label>
+                                            </div>
+                                            <div class="form-check form-switch mb-2">
+                                                <input class="form-check-input" type="checkbox" v-model="settings.contact_info_required">
+                                                <label class="form-check-label">联系方式必填</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 附件设置 -->
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-header">附件设置</div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label class="form-label">最大文件大小(MB)</label>
+                                                <input type="number" class="form-control" 
+                                                       v-model="settings.max_file_size_mb">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">允许的文件类型</label>
+                                                <input type="text" class="form-control" 
+                                                       v-model="settings.allowed_extensions"
+                                                       placeholder="用逗号分隔，如：jpg,png,pdf">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">最大附件数量</label>
+                                                <input type="number" class="form-control" 
+                                                       v-model="settings.max_attachments">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary" :disabled="saving">
+                                    <i class="bi" :class="saving ? 'bi-hourglass-split' : 'bi-save'"></i>
+                                    {{ saving ? '保存中...' : '保存设置' }}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 业务管理页面 -->
+                <div v-if="currentView === 'businesses' && isAdmin" :key="'businesses'" class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4 class="card-title mb-0">业务管理</h4>
+                            <div>
+                                <button class="btn btn-success me-2" @click="showCategoryModal()">
+                                    <i class="bi bi-folder-plus"></i> 添加分类
+                                </button>
+                                <button class="btn btn-primary" @click="showBusinessModal()">
+                                    <i class="bi bi-plus"></i> 添加业务
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 分类列表 -->
+                        <div class="row g-4">
+                            <div v-for="category in categories" :key="category.id" class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">{{ category.name }}</h5>
+                                        <div>
+                                            <button class="btn btn-sm btn-outline-primary me-1" 
+                                                    @click="editCategory(category)">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger" 
+                                                    @click="deleteCategory(category.id)">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="text-muted">{{ category.description }}</p>
+                                        <div class="list-group">
+                                            <div v-for="business in businessesByCategory[category.id]" 
+                                                 :key="business.id"
+                                                 class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <h6 class="mb-1">{{ business.name }}</h6>
+                                                    <small class="text-muted">{{ business.description }}</small>
+                                                </div>
+                                                <div>
+                                                    <button class="btn btn-sm btn-outline-primary me-1" 
+                                                            @click="editBusiness(business)">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-danger" 
+                                                            @click="deleteBusiness(business.id)">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </transition-group>
+        </div>
+
+        <!-- 查看投诉详情模态框 -->
+        <div class="modal fade" id="complaintModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">投诉详情 {{ selectedComplaint?.id ? `#${selectedComplaint.id}` : '' }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body" v-if="selectedComplaint">
+                        <div class="mb-3">
+                            <label class="form-label">投诉编号</label>
+                            <input type="text" class="form-control" v-model="selectedComplaint.id" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">标题</label>
+                            <input type="text" class="form-control" v-model="selectedComplaint.title" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">详细描述</label>
+                            <textarea class="form-control" v-model="selectedComplaint.description" readonly rows="5"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">联系方式</label>
+                            <input type="text" class="form-control" v-model="selectedComplaint.contact" readonly>
+                        </div>
+                        <div class="mb-3" v-if="selectedComplaint.attachments && selectedComplaint.attachments.length">
+                            <label class="form-label">附件</label>
+                            <div class="d-flex flex-wrap">
+                                <template v-for="file in selectedComplaint.attachments" :key="file">
+                                    <img v-if="isImage(file)"
+                                        :src="apiConfig.BASE_URL + '/storage/uploads/' + file"
+                                        class="preview-image"
+                                        @click="openImage(file)">
+                                    <a v-else
+                                        :href="apiConfig.BASE_URL + '/storage/uploads/' + file"
+                                        target="_blank"
+                                        class="btn btn-outline-primary me-2 mb-2">
+                                        <i class="bi bi-file-earmark"></i>
+                                        {{ file }}
+                                    </a>
+                                </template>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">状态</label>
+                            <select class="form-select" v-model="selectedComplaint.status">
+                                <option value="pending">待处理</option>
+                                <option value="processing">处理中</option>
+                                <option value="resolved">已解决</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">提交时间</label>
+                            <input type="text" class="form-control" :value="formatDate(selectedComplaint.created_at)" readonly>
+                        </div>
+                        <!-- 回复列表 -->
+                        <div v-if="selectedComplaint.replies?.length" class="mb-3">
+                            <h6>处理记录</h6>
+                            <div class="list-group">
+                                <div v-for="reply in selectedComplaint.replies" 
+                                     :key="reply.id"
+                                     class="list-group-item"
+                                     :class="{'bg-light': reply.is_private}">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="me-2">
+                                            <div class="text-muted small">
+                                                {{ formatDate(reply.created_at) }}
+                                                <span v-if="reply.created_by" class="ms-2">
+                                                    {{ reply.created_by }}
+                                                </span>
+                                                <span v-if="reply.is_private" 
+                                                      class="badge bg-warning ms-2">
+                                                    内部备注
+                                                </span>
+                                            </div>
+                                            <div style="white-space: pre-line">{{ reply.content }}</div>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-danger"
+                                                @click="deleteReply(selectedComplaint.id, reply.id)">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 添加回复表单 -->
+                        <form @submit.prevent="handleAddReply(selectedComplaint.id)" class="mb-3">
+                            <div class="mb-3">
+                                <label class="form-label">添加回复</label>
+                                <textarea class="form-control" 
+                                          v-model="replyForm.content" 
+                                          rows="3" 
+                                          required
+                                          placeholder="请输入回复内容"></textarea>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" 
+                                       type="checkbox" 
+                                       v-model="replyForm.is_private" 
+                                       id="replyPrivate">
+                                <label class="form-check-label" for="replyPrivate">
+                                    仅内部可见
+                                </label>
+                            </div>
+                            <button type="submit" 
+                                    class="btn btn-primary" 
+                                    :disabled="submittingReply">
+                                <i class="bi" :class="submittingReply ? 'bi-hourglass-split' : 'bi-reply'"></i>
+                                {{ submittingReply ? '提交中...' : '提交回复' }}
+                            </button>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                        <button type="button" 
+                                class="btn btn-success" 
+                                @click="updateComplaintStatus(selectedComplaint.id, 'resolved')"
+                                v-if="selectedComplaint?.status !== 'resolved'">
+                            标记为已解决
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast 容器 -->
+        <div class="toast-container position-fixed top-0 end-0 p-3">
+            <div 
+                class="toast align-items-center text-white border-0" 
+                :class="toastType"
+                role="alert" 
+                aria-live="assertive" 
+                aria-atomic="true"
+                id="globalToast"
+            >
+                <div class="d-flex">
+                    <div class="toast-body">
+                        {{ toastMessage }}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 业务编辑模态框 -->
+        <div class="modal fade" id="businessModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">{{ editingBusiness.id ? '编辑业务' : '添加业务' }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form @submit.prevent="saveBusiness">
+                            <div class="mb-3">
+                                <label class="form-label">所属分类</label>
+                                <select class="form-select" v-model="editingBusiness.category_id" required>
+                                    <option v-for="category in categories" 
+                                            :key="category.id" 
+                                            :value="category.id">
+                                        {{ category.name }}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">业务名称</label>
+                                <input type="text" class="form-control" v-model="editingBusiness.name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">业务描述</label>
+                                <textarea class="form-control" v-model="editingBusiness.description" rows="3"></textarea>
+                            </div>
+
+                            <!-- 自定义字段配置部分 -->
+                            <div class="card mb-3">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0">自定义字段配置</h6>
+                                    <button type="button" class="btn btn-sm btn-primary" @click="addCustomField">
+                                        <i class="bi bi-plus"></i> 添加字段
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <div v-for="(field, index) in editingBusiness.fields_config" 
+                                         :key="index" 
+                                         class="border p-3 mb-3 rounded">
+                                        <div class="mb-2 d-flex justify-content-between align-items-center">
+                                            <h6 class="mb-0">字段 #{{index + 1}}</h6>
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-danger" 
+                                                    @click="removeCustomField(index)">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">字段名称</label>
+                                            <input type="text" 
+                                                   class="form-control" 
+                                                   v-model="field.label" 
+                                                   required>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">字段描述</label>
+                                            <input type="text" 
+                                                   class="form-control" 
+                                                   v-model="field.description" 
+                                                   placeholder="请输入字段说明文字">
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">字段类型</label>
+                                            <select class="form-select" v-model="field.type">
+                                                <option value="text">文本输入框</option>
+                                                <option value="textarea">多行文本框</option>
+                                                <option value="number">数字输入框</option>
+                                                <option value="select">下拉选择框</option>
+                                                <option value="radio">单选按钮组</option>
+                                                <option value="checkbox">复选框组</option>
+                                                <option value="date">日期选择器</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">是否必填</label>
+                                            <div class="form-check">
+                                                <input class="form-check-input" 
+                                                       type="checkbox" 
+                                                       v-model="field.required">
+                                                <label class="form-check-label">必填字段</label>
+                                            </div>
+                                        </div>
+                                        <!-- 选项配置（针对 select、radio、checkbox 类型） -->
+                                        <div class="mb-2" v-if="['select', 'radio', 'checkbox'].includes(field.type)">
+                                            <label class="form-label">选项配置</label>
+                                            <div class="input-group mb-2" v-for="(option, optionIndex) in field.options" :key="optionIndex">
+                                                <input type="text" 
+                                                       class="form-control" 
+                                                       v-model="field.options[optionIndex]"
+                                                       placeholder="选项值">
+                                                <button type="button" 
+                                                        class="btn btn-outline-danger" 
+                                                        @click="removeOption(field, optionIndex)">
+                                                    <i class="bi bi-dash"></i>
+                                                </button>
+                                            </div>
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-outline-primary" 
+                                                    @click="addOption(field)">
+                                                <i class="bi bi-plus"></i> 添加选项
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" 
+                                       type="checkbox" 
+                                       v-model="editingBusiness.is_enabled">
+                                <label class="form-check-label">启用业务</label>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                        <button type="submit" class="btn btn-primary" @click="saveBusiness">保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 分类编辑模态框 -->
+        <div class="modal fade" id="categoryModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">{{ editingCategory.id ? '编辑分类' : '添加分类' }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form @submit.prevent="saveCategory">
+                            <div class="mb-3">
+                                <label class="form-label">分类名称 <span class="text-danger">*</span></label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       v-model="editingCategory.name" 
+                                       required
+                                       maxlength="50"
+                                       placeholder="请输入分类名称">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">分类描述</label>
+                                <textarea class="form-control" 
+                                          v-model="editingCategory.description" 
+                                          rows="3"
+                                          maxlength="200"
+                                          placeholder="请输入分类描述"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">排序序号</label>
+                                <input type="number" 
+                                       class="form-control" 
+                                       v-model="editingCategory.sort_order"
+                                       min="0"
+                                       placeholder="数字越小越靠前">
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" 
+                                       type="checkbox" 
+                                       v-model="editingCategory.is_enabled">
+                                <label class="form-check-label">启用分类</label>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" @click="saveCategory">保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const { createApp, ref, computed, onMounted, watch, onUnmounted } = Vue
+
+        // API配置
+        const API_CONFIG = {
+            BASE_URL: 'http://', // 后端地址
+            ENDPOINTS: {
+                LOGIN: '/api/admin/login', // 登录
+                COMPLAINTS: '/api/complaints', // 投诉列表
+                ADMIN_COMPLAINTS: '/api/admin/complaints', // 管理员投诉列表
+                COMPLAINT_DETAIL: (id) => `/api/admin/complaints/${id}`, // 投诉详情
+                COMPLAINT_STATUS: (id) => `/api/complaints/${id}`
+            }
+        }
+
+        // API请求工具
+        const api = {
+            async request(url, options = {}) {
+                const token = localStorage.getItem('adminToken')
+                if (token) {
+                    options.headers = {
+                        ...options.headers,
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+
+                const response = await fetch(API_CONFIG.BASE_URL + url, options)
+                const data = await response.json()
+                
+                // 处理未授权错误
+                if (response.status === 401) {
+                    // 清除 token 并跳转到登录页面
+                    localStorage.removeItem('adminToken')
+                    window.location.hash = '/'
+                    throw new Error('登录已过期，请重新登录')
+                }
+                
+                return data
+            }
+        }
+
+        // 路由配置
+        const routes = {
+            '/': 'complaint-form',
+            '/query': 'complaint-query',
+            '/login': 'login',
+            '/dashboard': 'dashboard',
+            '/complaints': 'complaints',
+            '/settings': 'settings',
+            '/businesses': 'businesses'
+        }
+
+        // 需要管理员权限的路由
+        const adminRoutes = [
+            '/dashboard',
+            '/complaints',
+            '/settings',
+            '/businesses'
+        ]
+
+        createApp({
+            setup() {
+                // 状态管理
+                const currentView = ref('complaint-form')
+                const isAdmin = ref(false)
+                const submitting = ref(false)
+                const showModal = ref(false)
+                const previews = ref([])
+
+                // 表单数据
+                const loginForm = ref({ username: '', password: '' })
+                const complaintForm = ref({
+                    title: '',
+                    description: '',
+                    contact: '',
+                    category_id: '',
+                    business_id: '',
+                    custom_fields: {},
+                    attachments: []
+                })
+
+                // 管理员数据
+                const complaints = ref([])
+                const selectedComplaint = ref(null)
+                const filters = ref({ status: '' })
+                const stats = ref({ pending: 0, resolved: 0 })
+
+                // 计算属性
+                const filteredComplaints = computed(() => {
+                    if (!filters.value.status) return complaints.value
+                    return complaints.value.filter(c => c.status === filters.value.status)
+                })
+
+                // 历史记录状态
+                const history = ref([])
+                const canGoBack = computed(() => history.value.length > 1)
+
+                // 轮询相关代码
+                const POLL_INTERVAL = 10000; // 10秒
+                let pollTimer = null;
+
+                // 开始轮询
+                const startPolling = () => {
+                    if (pollTimer) return;
+                    pollTimer = setInterval(loadComplaints, POLL_INTERVAL);
+                }
+
+                // 停止轮询
+                const stopPolling = () => {
+                    if (pollTimer) {
+                        clearInterval(pollTimer);
+                        pollTimer = null;
+                    }
+                }
+
+                // 加载投诉列表
+                const loadComplaints = async () => {
+                    try {
+                        complaints.value = await api.request(API_CONFIG.ENDPOINTS.ADMIN_COMPLAINTS)
+                        updateStats()
+                    } catch (error) {
+                        console.error('Failed to load complaints:', error)
+                    }
+                }
+
+                // 检查登录状态
+                const checkAuth = () => {
+                    const token = localStorage.getItem('adminToken')
+                    if (!token) {
+                        isAdmin.value = false
+                        return
+                    }
+                    
+                    // 解析 token 的过期时间
+                    try {
+                        const payload = JSON.parse(atob(token.split('.')[1]))
+                        if (payload.exp < Date.now() / 1000) {
+                            localStorage.removeItem('adminToken')
+                            isAdmin.value = false
+                            if (currentView.value !== 'home') {
+                                window.location.hash = '/'
+                                showToast('登录已过期，请重新登录', 'warning')
+                            }
+                        } else {
+                            isAdmin.value = true
+                        }
+                    } catch (e) {
+                        localStorage.removeItem('adminToken')
+                        isAdmin.value = false
+                    }
+                }
+
+                // 修改路由处理
+                const handleRoute = () => {
+                    const hash = window.location.hash.slice(1) || '/'
+                    if (routes[hash]) {
+                        // 在每次路由变化时检查认证状态
+                        checkAuth()
+                        
+                        // 如果是管理页面但未登录，重定向到首页
+                        if (adminRoutes.includes(hash) && !isAdmin.value) {
+                            window.location.hash = '/'
+                            return
+                        }
+                        // 根据路由加载数据
+                        if (hash === '/settings') {
+                            loadSettings()
+                        } else if (hash === '/businesses') {
+                            loadBusinessData()
+                        }
+                        currentView.value = routes[hash]
+                        // 记录历史
+                        if (!history.value.includes(hash)) {
+                            history.value.push(hash)
+                        }
+                        // 如果是管理员页面，连接 WebSocket
+                        if (hash === '/dashboard' || hash === '/complaints') {
+                            loadComplaints()
+                            startPolling()
+                        } else {
+                            stopPolling()
+                        }
+                    }
+                }
+
+                // 监听路由变化
+                window.addEventListener('hashchange', handleRoute)
+                onMounted(() => {
+                    // 检查登录状态
+                    const token = localStorage.getItem('adminToken')
+                    if (token) {
+                        isAdmin.value = true
+                        if (window.location.hash === '#/login') {
+                            window.location.hash = '/dashboard'
+                            return
+                        }
+                    }
+                    
+                    // 同时加载分类和业务列表
+                    Promise.all([
+                        loadCategories(),
+                        loadBusinesses()
+                    ]).catch(error => {
+                        console.error('Failed to load initial data:', error)
+                    })
+                    
+                    handleRoute()
+                })
+
+                // 方法
+                const handleLogin = async () => {
+                    try {
+                        const data = await api.request(API_CONFIG.ENDPOINTS.LOGIN, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(loginForm.value)
+                        })
+                        localStorage.setItem('adminToken', data.token)
+                        isAdmin.value = true
+                        window.location.hash = '/dashboard'
+                        loadComplaints()
+                        showToast('登录成功', 'success')
+                    } catch (error) {
+                        showToast('登录失败', 'danger')
+                    }
+                }
+
+                const submittedId = ref('')
+                const descriptionError = ref(false)
+                const remainingChars = computed(() => {
+                    const current = complaintForm.value.description.length
+                    const required = 30
+                    return Math.max(0, required - current)
+                })
+
+                const validateDescription = () => {
+                    descriptionError.value = complaintForm.value.description.length < 30
+                }
+
+                const handleSubmitComplaint = async () => {
+                    if (complaintForm.value.description.length < 30) {
+                        showToast('详细描述不能少于30个字', 'warning')
+                        return
+                    }
+
+                    if (!complaintForm.value.category_id) {
+                        showToast('请选择业务分类', 'warning')
+                        return
+                    }
+
+                    if (!complaintForm.value.business_id) {
+                        showToast('请选择具体业务', 'warning')
+                        return
+                    }
+
+                    submitting.value = true
+                    try {
+                        const formData = new FormData()
+                        formData.append('title', complaintForm.value.title)
+                        formData.append('description', complaintForm.value.description)
+                        formData.append('contact', complaintForm.value.contact)
+                        formData.append('category_id', complaintForm.value.category_id)
+                        formData.append('business_id', complaintForm.value.business_id)
+                        formData.append('custom_fields', JSON.stringify(complaintForm.value.custom_fields))
+                        
+                        if (complaintForm.value.attachments) {
+                            Array.from(complaintForm.value.attachments).forEach(file => {
+                                formData.append('attachments[]', file)
+                            })
+                        }
+                        
+                        const response = await api.request(API_CONFIG.ENDPOINTS.COMPLAINTS, {
+                            method: 'POST',
+                            body: formData
+                        })
+                        
+                        submittedId.value = response.complaintId
+                        complaintForm.value = { 
+                            title: '', 
+                            description: '', 
+                            contact: '', 
+                            category_id: '',
+                            business_id: '',
+                            custom_fields: {},
+                            attachments: [] 
+                        }
+                        previews.value = []
+                    } catch (error) {
+                        showToast('提交失败', 'danger')
+                    } finally {
+                        submitting.value = false
+                    }
+                }
+
+                const handleFileSelect = (event) => {
+                    const files = event.target.files
+                    // 验证文件大小和类型
+                    const maxSize = 20 * 1024 * 1024 // 20MB
+                    const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+                    
+                    const validFiles = Array.from(files).filter(file => {
+                        if (file.size > maxSize) {
+                            showToast(`文件 ${file.name} 超过20MB限制`, 'warning')
+                            return false
+                        }
+                        if (!allowedTypes.includes(file.type)) {
+                            showToast(`文件 ${file.name} 类型不支持`, 'warning')
+                            return false
+                        }
+                        return true
+                    })
+                    
+                    complaintForm.value.attachments = validFiles
+                    
+                    previews.value = []
+                    validFiles.forEach(file => {
+                        if (file.type.startsWith('image/')) {
+                            const reader = new FileReader()
+                            reader.onload = e => previews.value.push(e.target.result)
+                            reader.readAsDataURL(file)
+                        }
+                    })
+                }
+
+                const updateStats = () => {
+                    stats.value = {
+                        pending: complaints.value.filter(c => c.status === 'pending').length,
+                        resolved: complaints.value.filter(c => c.status === 'resolved').length
+                    }
+                }
+
+                const viewComplaint = async (id) => {
+                    if (!id) {
+                        showToast('投诉ID不能为空', 'warning')
+                        return
+                    }
+                    
+                    try {
+                        const result = await api.request(`/api/complaints/${id}`)
+                        selectedComplaint.value = result
+                        // 确保数据加载完成后再显示模态框
+                        if (selectedComplaint.value) {
+                            const modal = new bootstrap.Modal(document.getElementById('complaintModal'))
+                            modal.show()
+                        }
+                    } catch (error) {
+                        console.error('Error loading complaint:', error)
+                        showToast('加载投诉详情失败', 'danger')
+                    }
+                }
+
+                const updateComplaint = async () => {
+                    try {
+                        await api.request(API_CONFIG.ENDPOINTS.COMPLAINT_DETAIL(selectedComplaint.value.id), {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(selectedComplaint.value)
+                        })
+                        
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('complaintModal'))
+                        modal.hide()
+                        showToast('更新成功', 'success')
+                        loadComplaints()
+                    } catch (error) {
+                        showToast('更新失败', 'danger')
+                    }
+                }
+
+                const deleteComplaint = (id) => {
+                    if (confirm('确定要删除这条投诉吗？')) {
+                        handleDeleteComplaint(id)
+                    }
+                }
+
+                const handleDeleteComplaint = async (id) => {
+                    try {
+                        await api.request(API_CONFIG.ENDPOINTS.ADMIN_COMPLAINTS + '/' + id, {
+                            method: 'DELETE'
+                        })
+                        
+                        showToast('删除成功', 'success')
+                        loadComplaints()
+                    } catch (error) {
+                        showToast('删除失败', 'danger')
+                    }
+                }
+
+                const logout = () => {
+                    if (pollTimer) {
+                        stopPolling()
+                    }
+                    localStorage.removeItem('adminToken')
+                    isAdmin.value = false
+                    window.location.hash = '/'
+                }
+
+                const formatDate = (date) => {
+                    return new Date(date).toLocaleString()
+                }
+
+                // 返回上一页
+                const goBack = () => {
+                    if (canGoBack.value) {
+                        history.value.pop() // 移除当前页
+                        const previousPath = history.value.pop() // 获取并移除上一页
+                        navigate(previousPath, false) // 不记录历史
+                    }
+                }
+
+                // 修改导航方法
+                const navigate = (path, recordHistory = true) => {
+                    window.location.hash = path
+                    if (recordHistory) {
+                        history.value.push(path)
+                    }
+                }
+
+                // 修改状态样式方法
+                const getStatusBadge = (status) => {
+                    const badges = {
+                        'pending': 'bg-warning',
+                        'processing': 'bg-info',
+                        'resolved': 'bg-success'
+                    }
+                    return badges[status] || 'bg-secondary'
+                }
+
+                // Toast 状态
+                const toastMessage = ref('')
+                const toastType = ref('bg-primary')
+                let toast = null
+
+                // 显示提示方法
+                const showToast = (message, type = 'primary') => {
+                    toastMessage.value = message
+                    toastType.value = `bg-${type}`
+                    if (!toast) {
+                        toast = new bootstrap.Toast(document.getElementById('globalToast'), {
+                            delay: 3000, // 3秒后自动隐藏
+                            animation: true,
+                            autohide: true
+                        })
+                    }
+                    toast.show()
+                }
+
+                // 主题状态
+                const isDarkMode = ref(localStorage.getItem('theme') === 'dark')
+
+                // 主题切换方法
+                const toggleTheme = () => {
+                    isDarkMode.value = !isDarkMode.value
+                    const theme = isDarkMode.value ? 'dark' : 'light'
+                    document.documentElement.setAttribute('data-bs-theme', theme)
+                    localStorage.setItem('theme', theme)
+                }
+
+                // 初始化主题
+                onMounted(() => {
+                    // 检查系统主题偏好
+                    if (!localStorage.getItem('theme')) {
+                        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+                        isDarkMode.value = prefersDark
+                        document.documentElement.setAttribute('data-bs-theme', prefersDark ? 'dark' : 'light')
+                    } else {
+                        document.documentElement.setAttribute('data-bs-theme', isDarkMode.value ? 'dark' : 'light')
+                    }
+
+                    // 监听系统主题变化
+                    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+                        if (!localStorage.getItem('theme')) {
+                            isDarkMode.value = e.matches
+                            document.documentElement.setAttribute('data-bs-theme', e.matches ? 'dark' : 'light')
+                        }
+                    })
+                })
+
+                const queryId = ref('')
+                const queryResult = ref(null)
+
+                const handleQueryComplaint = async () => {
+                    try {
+                        // 移除可能的前缀
+                        const id = queryId.value.replace(/^TS/i, '');
+                        const result = await api.request(API_CONFIG.ENDPOINTS.COMPLAINT_STATUS(id))
+                        queryResult.value = result
+                    } catch (error) {
+                        showToast('查询失败', 'danger')
+                    }
+                }
+
+                const getStatusText = (status) => {
+                    const statusMap = {
+                        'pending': '待处理',
+                        'processing': '处理中',
+                        'resolved': '已解决'
+                    }
+                    return statusMap[status] || status
+                }
+
+                const getStatusAlert = (status) => {
+                    const alerts = {
+                        'pending': 'alert-warning',
+                        'processing': 'alert-info',
+                        'resolved': 'alert-success'
+                    }
+                    return alerts[status] || 'alert-secondary'
+                }
+
+                const openImage = (filename) => {
+                    window.open(API_CONFIG.BASE_URL + '/storage/uploads/' + filename, '_blank')
+                }
+
+                // 系统设置状态
+                const settings = ref({})
+                const saving = ref(false)
+
+                // 业务管理状态
+                const categories = ref([])
+                const businesses = ref([])
+                const editingBusiness = ref({
+                    name: '',
+                    description: '',
+                    category_id: null,
+                    is_enabled: true,
+                    fields_config: []
+                })
+                const editingCategory = ref({
+                    name: '',
+                    description: '',
+                    sort_order: 0,
+                    is_enabled: true
+                })
+
+                const businessesByCategory = computed(() => {
+                    const result = {}
+                    categories.value.forEach(category => {
+                        result[category.id] = businesses.value.filter(b => b.category_id === category.id)
+                    })
+                    return result
+                })
+
+                // 将字符串转换为布尔值
+                const parseBoolean = (value) => {
+                    return value === 'true' || value === true;
+                }
+
+                // 加载系统设置
+                const loadSettings = async () => {
+                    try {
+                        settings.value = await api.request('/api/admin/settings')
+                        // 将开关类设置转换为布尔值
+                        const booleanSettings = [
+                            'enable_attachments',
+                            'enable_replies',
+                            'enable_categories',
+                            'enable_businesses',
+                            'enable_contact_info',
+                            'contact_info_required',
+                            'websocket_enabled',
+                            'notification_enabled'
+                        ]
+                        booleanSettings.forEach(key => {
+                            if (key in settings.value) {
+                                settings.value[key] = parseBoolean(settings.value[key])
+                            }
+                        })
+                    } catch (error) {
+                        showToast('加载设置失败', 'danger')
+                    }
+                }
+
+                // 保存系统设置
+                const saveSettings = async () => {
+                    saving.value = true
+                    try {
+                        // 将布尔值转换为字符串
+                        const settingsToSave = { ...settings.value }
+                        Object.keys(settingsToSave).forEach(key => {
+                            if (typeof settingsToSave[key] === 'boolean') {
+                                settingsToSave[key] = settingsToSave[key].toString()
+                            }
+                        })
+                        await api.request('/api/admin/settings', {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(settingsToSave)
+                        })
+                        showToast('设置保存成功', 'success')
+                    } catch (error) {
+                        showToast('保存失败', 'danger')
+                    } finally {
+                        saving.value = false
+                    }
+                }
+
+                // 加载分类和业务
+                const loadBusinessData = async () => {
+                    try {
+                        const [categoriesData, businessesData] = await Promise.all([
+                            api.request('/api/admin/categories'),
+                            api.request('/api/admin/businesses')
+                        ])
+                        categories.value = categoriesData.map(category => ({
+                            ...category,
+                            is_enabled: category.is_enabled === 1 || category.is_enabled === '1' || category.is_enabled === true
+                        }))
+                        businesses.value = businessesData.map(business => ({
+                            ...business,
+                            is_enabled: business.is_enabled === 1 || business.is_enabled === '1' || business.is_enabled === true
+                        }))
+                    } catch (error) {
+                        showToast('加载数据失败', 'danger')
+                    }
+                }
+
+                // 业务管理方法
+                const showBusinessModal = (business = null) => {
+                    if (business) {
+                        editingBusiness.value = {
+                            ...business,
+                            is_enabled: business.is_enabled === 1 || business.is_enabled === '1' || business.is_enabled === true,
+                            fields_config: JSON.parse(business.fields_config || '[]')
+                        }
+                    } else {
+                        editingBusiness.value = {
+                            name: '',
+                            description: '',
+                            category_id: categories.value[0]?.id || null,
+                            is_enabled: true,
+                            fields_config: []
+                        }
+                    }
+                    const modal = new bootstrap.Modal(document.getElementById('businessModal'))
+                    modal.show()
+                }
+
+                const showCategoryModal = (category = null) => {
+                    if (category) {
+                        editingCategory.value = {
+                            ...category,
+                            // 确保正确转换 is_enabled 值
+                            is_enabled: category.is_enabled === 1 || category.is_enabled === '1' || category.is_enabled === true
+                        }
+                    } else {
+                        editingCategory.value = {
+                            name: '',
+                            description: '',
+                            sort_order: 0,
+                            is_enabled: true
+                        }
+                    }
+                    const modal = new bootstrap.Modal(document.getElementById('categoryModal'))
+                    modal.show()
+                }
+
+                // 保存业务
+                const saveBusiness = async () => {
+                    try {
+                        if (!editingBusiness.value.name.trim()) {
+                            showToast('业务名称不能为空', 'warning')
+                            return
+                        }
+
+                        if (!editingBusiness.value.category_id) {
+                            showToast('请选择所属分类', 'warning')
+                            return
+                        }
+
+                        const method = editingBusiness.value.id ? 'PUT' : 'POST'
+                        const url = editingBusiness.value.id 
+                            ? `/api/admin/businesses/${editingBusiness.value.id}`
+                            : '/api/admin/businesses'
+                        
+                        // 准备发送的数据，确保 is_enabled 是数字
+                        const businessData = {
+                            ...editingBusiness.value,
+                            is_enabled: editingBusiness.value.is_enabled ? 1 : 0
+                        }
+                        
+                        await api.request(url, {
+                            method,
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(businessData)
+                        })
+                        
+                        showToast(
+                            editingBusiness.value.id ? '业务更新成功' : '业务添加成功',
+                            'success'
+                        )
+                        loadBusinessData()
+                        bootstrap.Modal.getInstance(document.getElementById('businessModal')).hide()
+                    } catch (error) {
+                        showToast('保存失败', 'danger')
+                    }
+                }
+
+                // 保存分类
+                const saveCategory = async () => {
+                    try {
+                        if (!editingCategory.value.name.trim()) {
+                            showToast('分类名称不能为空', 'warning')
+                            return
+                        }
+
+                        const method = editingCategory.value.id ? 'PUT' : 'POST'
+                        const url = editingCategory.value.id 
+                            ? `/api/admin/categories/${editingCategory.value.id}`
+                            : '/api/admin/categories'
+                        
+                        // 准备发送的数据，确保 is_enabled 是数字
+                        const categoryData = {
+                            ...editingCategory.value,
+                            is_enabled: editingCategory.value.is_enabled ? 1 : 0
+                        }
+                        
+                        await api.request(url, {
+                            method,
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(categoryData)
+                        })
+                        
+                        showToast(
+                            editingCategory.value.id ? '分类更新成功' : '分类添加成功',
+                            'success'
+                        )
+                        loadBusinessData()
+                        bootstrap.Modal.getInstance(document.getElementById('categoryModal')).hide()
+                    } catch (error) {
+                        showToast('保存失败', 'danger')
+                    }
+                }
+
+                // 删除业务
+                const deleteBusiness = async (id) => {
+                    if (!confirm('确定要删除这个业务吗？')) return
+                    try {
+                        await api.request(`/api/admin/businesses/${id}`, {
+                            method: 'DELETE'
+                        })
+                        showToast('删除成功', 'success')
+                        loadBusinessData()
+                    } catch (error) {
+                        showToast('删除失败', 'danger')
+                    }
+                }
+
+                // 删除分类
+                const deleteCategory = async (id) => {
+                    if (!confirm('确定要删除这个分类吗？')) return
+                    try {
+                        await api.request(`/api/admin/categories/${id}`, {
+                            method: 'DELETE'
+                        })
+                        showToast('删除成功', 'success')
+                        loadBusinessData()
+                    } catch (error) {
+                        showToast('删除失败', 'danger')
+                    }
+                }
+
+                // 编辑业务
+                const editBusiness = (business) => {
+                    showBusinessModal(business)
+                }
+
+                // 编辑分类
+                const editCategory = (category) => {
+                    showCategoryModal(category)
+                }
+
+                // 判断文件是否为图片
+                const isImage = (filename) => {
+                    const ext = filename.split('.').pop().toLowerCase();
+                    return ['jpg', 'jpeg', 'png', 'gif'].includes(ext);
+                }
+
+                // 删除相关状态
+                const deleteId = ref('')
+                const confirmModal = ref(null)
+
+                // 使 API_CONFIG 在 setup 中可用
+                const apiConfig = API_CONFIG
+
+                // 添加加载分类的方法
+                const loadCategories = async () => {
+                    try {
+                        // 使用公开的分类接口
+                        const response = await api.request('/api/categories')
+                        categories.value = response.map(category => ({
+                            ...category,
+                            is_enabled: category.is_enabled === 1 || category.is_enabled === '1' || category.is_enabled === true
+                        }))
+                    } catch (error) {
+                        console.error('Failed to load categories:', error)
+                        showToast('加载分类失败', 'warning')
+                    }
+                }
+
+                const handleCategoryChange = () => {
+                    // 当分类改变时，清空已选择的业务
+                    complaintForm.value.business_id = ''
+                    
+                    // 如果业务列表为空，尝试加载业务数据
+                    if (businesses.value.length === 0) {
+                        loadBusinesses()
+                    }
+                }
+
+                const filteredBusinesses = computed(() => {
+                    if (!complaintForm.value.category_id) return []
+                    return businesses.value.filter(
+                        business => business.category_id === complaintForm.value.category_id && business.is_enabled
+                    )
+                })
+
+                const loadBusinesses = async () => {
+                    try {
+                        const response = await api.request('/api/businesses')
+                        businesses.value = response.map(business => ({
+                            ...business,
+                            is_enabled: business.is_enabled === 1 || business.is_enabled === '1' || business.is_enabled === true
+                        }))
+                    } catch (error) {
+                        console.error('Failed to load businesses:', error)
+                        showToast('加载业务列表失败', 'warning')
+                    }
+                }
+
+                // 修改添加自定义字段的方法
+                const addCustomField = () => {
+                    editingBusiness.value.fields_config.push({
+                        label: '',
+                        type: 'text',
+                        required: false,
+                        description: '', // 添加描述字段
+                        options: []
+                    })
+                }
+
+                // 删除自定义字段
+                const removeCustomField = (index) => {
+                    editingBusiness.value.fields_config.splice(index, 1)
+                }
+
+                // 添加选项
+                const addOption = (field) => {
+                    field.options.push('')
+                }
+
+                // 删除选项
+                const removeOption = (field, index) => {
+                    field.options.splice(index, 1)
+                }
+
+                // 添加 selectedBusiness 的计算属性
+                const selectedBusiness = computed(() => {
+                    if (!complaintForm.value.business_id) return null;
+                    return businesses.value.find(b => b.id === complaintForm.value.business_id);
+                })
+
+                // 修改业务选择的处理方法
+                const handleBusinessChange = () => {
+                    // 清空之前的自定义字段值
+                    complaintForm.value.custom_fields = {};
+                    
+                    // 如果选择了业务，初始化自定义字段的默认值
+                    if (selectedBusiness.value && selectedBusiness.value.fields_config) {
+                        const fieldsConfig = JSON.parse(selectedBusiness.value.fields_config || '[]');
+                        fieldsConfig.forEach(field => {
+                            if (field.type === 'checkbox') {
+                                complaintForm.value.custom_fields[field.label] = [];
+                            } else {
+                                complaintForm.value.custom_fields[field.label] = '';
+                            }
+                        });
+                    }
+                };
+
+                // 在 setup 函数中添加
+                const replyForm = ref({
+                    content: '',
+                    is_private: false
+                })
+                const submittingReply = ref(false)
+
+                // 添加回复方法
+                const handleAddReply = async (complaintId) => {
+                    if (!replyForm.value.content.trim()) {
+                        showToast('回复内容不能为空', 'warning')
+                        return
+                    }
+
+                    submittingReply.value = true
+                    try {
+                        await api.request(`/api/admin/complaints/${complaintId}/replies`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                content: replyForm.value.content,
+                                is_private: replyForm.value.is_private
+                            })
+                        })
+                        
+                        // 重新加载投诉详情
+                        const result = await api.request(`/api/complaints/${complaintId}`)
+                        queryResult.value = result
+                        
+                        // 清空回复表单
+                        replyForm.value = {
+                            content: '',
+                            is_private: false
+                        }
+                        
+                        showToast('回复已添加', 'success')
+                    } catch (error) {
+                        showToast('添加回复失败', 'danger')
+                    } finally {
+                        submittingReply.value = false
+                    }
+                }
+
+                // 删除回复方法
+                const deleteReply = async (complaintId, replyId) => {
+                    if (!confirm('确定要删除这条回复吗？')) return
+                    
+                    try {
+                        await api.request(`/api/admin/complaints/${complaintId}/replies/${replyId}`, {
+                            method: 'DELETE'
+                        })
+                        
+                        // 重新加载投诉详情
+                        const result = await api.request(`/api/complaints/${complaintId}`)
+                        queryResult.value = result
+                        
+                        showToast('回复已删除', 'success')
+                    } catch (error) {
+                        showToast('删除回复失败', 'danger')
+                    }
+                }
+
+                // 添加更新投诉状态的方法
+                const updateComplaintStatus = async (id, status) => {
+                    try {
+                        await api.request(`/api/admin/complaints/${id}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ status })
+                        })
+                        
+                        // 重新加载投诉详情
+                        const result = await api.request(`/api/complaints/${id}`)
+                        selectedComplaint.value = result
+                        
+                        // 刷新投诉列表
+                        loadComplaints()
+                        
+                        showToast('状态更新成功', 'success')
+                    } catch (error) {
+                        showToast('更新状态失败', 'danger')
+                    }
+                }
+
+                // 在 setup 函数中添加
+                const userReplyForm = ref({
+                    content: ''
+                })
+                const submittingUserReply = ref(false)
+
+                // 添加用户回复方法
+                const handleAddUserReply = async (complaintId) => {
+                    if (!userReplyForm.value.content.trim()) {
+                        showToast('回复内容不能为空', 'warning')
+                        return
+                    }
+
+                    submittingUserReply.value = true
+                    try {
+                        await api.request(`/api/complaints/${complaintId}/replies`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                content: userReplyForm.value.content
+                            })
+                        })
+                        
+                        // 重新加载投诉详情
+                        const result = await api.request(`/api/complaints/${complaintId}`)
+                        queryResult.value = result
+                        
+                        // 清空回复表单
+                        userReplyForm.value.content = ''
+                        
+                        showToast('回复已添加', 'success')
+                    } catch (error) {
+                        showToast('添加回复失败', 'danger')
+                    } finally {
+                        submittingUserReply.value = false
+                    }
+                }
+
+                return {
+                    currentView,
+                    isAdmin,
+                    submitting,
+                    showModal,
+                    previews,
+                    loginForm,
+                    complaintForm,
+                    complaints,
+                    selectedComplaint,
+                    filters,
+                    stats,
+                    filteredComplaints,
+                    handleLogin,
+                    handleSubmitComplaint,
+                    handleFileSelect,
+                    viewComplaint,
+                    updateComplaint,
+                    deleteComplaint,
+                    logout,
+                    formatDate,
+                    navigate,
+                    getStatusBadge,
+                    toastMessage,
+                    toastType,
+                    canGoBack,
+                    goBack,
+                    queryId,
+                    queryResult,
+                    handleQueryComplaint,
+                    getStatusText,
+                    getStatusAlert,
+                    openImage,
+                    submittedId,
+                    descriptionError,
+                    remainingChars,
+                    validateDescription,
+                    settings,
+                    saving,
+                    saveSettings,
+                    categories,
+                    businesses,
+                    businessesByCategory,
+                    showBusinessModal,
+                    showCategoryModal,
+                    editingBusiness,
+                    editingCategory,
+                    saveBusiness,
+                    saveCategory,
+                    deleteBusiness,
+                    deleteCategory,
+                    editBusiness,
+                    editCategory,
+                    isImage,
+                    deleteId,
+                    confirmModal,
+                    isDarkMode,
+                    toggleTheme,
+                    apiConfig,
+                    loadCategories,
+                    handleCategoryChange,
+                    filteredBusinesses,
+                    loadBusinesses,
+                    addCustomField,
+                    removeCustomField,
+                    addOption,
+                    removeOption,
+                    selectedBusiness,
+                    handleBusinessChange,
+                    replyForm,
+                    submittingReply,
+                    handleAddReply,
+                    deleteReply,
+                    updateComplaintStatus,
+                    userReplyForm,
+                    submittingUserReply,
+                    handleAddUserReply
+                }
+            }
+        }).mount('#app')
+    </script>
+</body>
+</html> 
